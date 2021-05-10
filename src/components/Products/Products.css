@@ -1,0 +1,27 @@
+.product{
+  display: flex;
+  border-bottom: 2px solid #ccc;
+}
+.productImg{
+  width: 20%;
+  display: flex;
+}
+.productImg img {
+  width: 100%;
+  height: auto;
+  margin-right: 10px;
+}
+.product-details{
+  width: 80%;
+}
+.main-button {
+  background: goldenrod;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: 1px solid black;
+}
+.product strong {
+  color: blue;
+  font-weight: 500;
+}

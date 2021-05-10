@@ -1,0 +1,15 @@
+.shop-review{
+    display: flex;
+    position: relative;
+}
+.shop-product{
+    width: 70%;
+    border-right: 2px solid lightblue;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.shop-cart{
+    width: 30%;
+    text-align: center;  
+}
