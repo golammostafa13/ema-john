@@ -9,6 +9,7 @@ import Header from './components/Header/Header';
 import Login from './components/Login/Login';
 import Manage from './components/Manage/Manage';
 import NotFound from './components/NotFound/NotFound';
+import PrivateRoute from './components/PrivatRoute/PrivateRoute';
 import ProductDetail from './components/ProductDetail/ProductDetail';
 import Review from './components/Review/Review';
 import Shipment from './components/Shipment/Shipment';
@@ -19,9 +20,8 @@ function App() {
   const [loggedInUser, setLoggedInUser] = useState({});
   return (
     <UserContext.Provider value={[loggedInUser, setLoggedInUser]} className="App">
-      <Header></Header>
-      <p>{loggedInUser.email}</p>
       <Router>
+        <Header></Header>
         <Switch>
           <Route exact path="/"> 
             <Shop/>
@@ -35,9 +35,9 @@ function App() {
           <Route path="/manage">
             <Manage/>
           </Route>
-          <Route path="/shipment">
+          <PrivateRoute path="/shipment">
             <Shipment/>
-          </Route>
+          </PrivateRoute>
           <Route path="/login">
             <Login/>
           </Route>

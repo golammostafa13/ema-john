@@ -1,15 +1,9 @@
-import firebase from "firebase/app";
-import "firebase/auth";
 import { useContext, useState } from "react";
+import { useHistory, useLocation } from "react-router";
 import { UserContext } from "../../App";
-import '../Cart/FirebaseConfig';
-import firebaseConfig from "../Cart/FirebaseConfig";
-
-firebase.initializeApp(firebaseConfig);
-
+import { createUserWithEmailAndPassword, fbSignIn, FirebaseConfigure, signIn, signOut, signUserWithEmailAndPassword } from "./LoginManager";
 function Login() {
-  const googleProvider = new firebase.auth.GoogleAuthProvider();
-  const fbProvider = new firebase.auth.FacebookAuthProvider();
+  FirebaseConfigure();
   const [user, setUser] = useState({
     name: '',
     email: '',
@@ -21,112 +15,59 @@ function Login() {
   })
   const [loggedInUser, setLoggedInUser] = useContext(UserContext);
   const [newUser, setNewUser] = useState(false);
+
+  const history = useHistory();
+  const location = useLocation();
+  let { from } = location.state || { from: { pathname: "/" } };
+
   const handleSignIn = () =>{
-    firebase.auth().signInWithPopup(googleProvider)
-    .then((res)=>{
-      const {displayName, photoURL, email} = res.user;
-      const newUser = {
-        name: displayName,
-        email,
-        photoURL,
-        password: '',
-        isSignedIn: true,
-        error:'',
-      }
-      setUser(newUser);
-    })
-    .catch((err)=>{
-      console.log(err.message);
+    signIn()
+    .then(res =>{
+      setUser(res);
+      setLoggedInUser(res);
     })
   }
   const handleSignOut = () =>{
-    const newUser = {
-      name: '',
-      email: '',
-      password: '',
-      photoURL: '',
-      isSignedIn: false,
-      error: '',
-      success: true
-    };
-    setUser(newUser);
+    signOut()
+    .then(res =>{
+      setUser(res);
+      setLoggedInUser(res);
+    })
   }
 
   const  handleFbSignIn = () => {
-    firebase
-    .auth()
-    .signInWithPopup(fbProvider)
-    .then((result) => {
-
-      // The signed-in user info.
-      var user = result.user;
-      console.log(user);
-      // ...
+    fbSignIn()
+    .then(res =>{
+      setUser(res);
+      setLoggedInUser(res);
+      history.replace(from);
     })
-    .catch((error) => {
-      // Handle Errors here.
-      var errorMessage = error.message;
-      console.log(errorMessage);
-      // ...
-    });
   }
 
   const handleSubmit = (e)=>{
     // console.log('hello');
     if(newUser && user.email && user.password){
-      firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-      .then((res) => {
-        // Signed in 
-        const newUserInfo = {...user};
-        newUserInfo.success = true;
-        newUserInfo.error = '';
-        setUser(newUserInfo);
-        updateUserName(user.name);
-        // ...
+      createUserWithEmailAndPassword(user.name, user.email, user.password)
+      .then(res=>{
+        setUser(res);
+        setLoggedInUser(res);
       })
-      .catch((error) => {
-        // var errorCode = error.code;
-        var errorMessage = error.message;
-        const newUserInfo = {...user};
-        newUserInfo.error = errorMessage;
-        newUserInfo.success = false;
-        setUser(newUserInfo);
-      });
     }
     if(!newUser && user.email && user.password){
-      firebase.auth().signInWithEmailAndPassword(user.email, user.password)
-    .then((res) => {
-      // Signed in 
-      const newUserInfo = {...user};
-      newUserInfo.success = true;
-      newUserInfo.error = '';
-      setUser(newUserInfo);
-      setLoggedInUser(newUserInfo);
-      console.log(res.user);
-      // ...
-    })
-    .catch((error) => {
-      // var errorCode = error.code;
-      var errorMessage = error.message;
-      const newUserInfo = {...user};
-      newUserInfo.error = errorMessage;
-      newUserInfo.success = false;
-      setUser(newUserInfo);
-    });
+      signUserWithEmailAndPassword(user.email, user.password)
+      .then(res => {
+        setUser(res);
+        setLoggedInUser(res);
+        history.replace(from);
+      })
+      .catch(res => {
+        setUser(res);
+        setLoggedInUser(res);
+      })
     }
     e.preventDefault();
   }
-  const updateUserName = (name) =>{
-    var user = firebase.auth().currentUser;
-
-    user.updateProfile({
-      displayName: name,
-    }).then(function() {
-      console.log("Updated user info: " + name);
-    }).catch(function(error) {
-      console.log(error);
-    });
-  }
+  
   const handleBlur = (e) =>{
     // console.log(e.target.name, e.target.value);
     let isFieldValid=true;
